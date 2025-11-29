@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Wonders of the Universe</title>
+    <style>
+        /* =========================================
+           CSS VARIABLES & RESET
+           ========================================= */
+        :root {
+            --bg-color: #0b0d17;       /* Deep Space Blue */
+            --panel-color: #15192b;    /* Slightly lighter for cards */
+            --accent-cyan: #00f3ff;    /* Sci-fi Cyan */
+            --accent-purple: #bc13fe;  /* Nebula Purple */
+            --text-main: #e0e6ed;      /* Soft White */
+            --text-dim: #a0aab5;       /* Grey text */
+            --sidebar-width: 250px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden; 
+        }
+
+        /* =========================================
+           LAYOUT STRUCTURE
+           ========================================= */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR NAVIGATION */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(21, 25, 43, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            text-align: center;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-dim);
+            padding: 1rem;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent-cyan);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.1), transparent);
+            border-left: 3px solid var(--accent-cyan);
+            color: white;
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 3rem;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .section-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-dim);
+            max-width: 600px;
+        }
+
+        /* Hide sections by default */
+        section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        section.active-section {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================
+           SECTION 1: PLANETS (Orbit System)
+           ========================================= */
+        .solar-system-layout {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .orbit-container {
+            flex: 1;
+            min-width: 300px;
+            height: 500px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1f35 0%, #0b0d17 70%);
+            border-radius: 20px;
+            overflow: hidden;
+            /* CRITICAL FIX: Ensures mouse events work inside nicely */
+            cursor: crosshair;
+        }
+
+        /* PAUSE ANIMATION ON HOVER - MAKES CLICKING EASIER */
+        .orbit-container:hover .orbit {
+            animation-play-state: paused;
+        }
+
+        .star {
+            width: 60px;
+            height: 60px;
+            background: #ffaa00;
+            border-radius: 50%;
+            box-shadow: 0 0 50px #ffaa00;
+            z-index: 10;
+        }
+
+        .orbit {
+            position: absolute;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: spin linear infinite;
+            pointer-events: none; /* Allows clicks to pass through the ring lines */
+        }
+
+        .planet-node {
+            width: 25px; /* Made slightly bigger for easier clicking */
+            height: 25px;
+            border-radius: 50%;
+            position: absolute;
+            top: -12.5px; /* Adjusted for new size */
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 0 10px currentColor;
+            z-index: 100; /* CRITICAL FIX: Ensures planet is on top */
+            pointer-events: auto; /* Re-enable clicks for the planet specifically */
+        }
+        
+        .planet-node:hover {
+            transform: translateX(-50%) scale(1.8); /* Bigger hover effect */
+            border: 2px solid white;
+        }
+
+        .orbit-1 { width: 140px; height: 140px; animation-duration: 8s; } 
+        .orbit-2 { width: 220px; height: 220px; animation-duration: 12s; } 
+        .orbit-3 { width: 300px; height: 300px; animation-duration: 20s; } 
+        .orbit-4 { width: 380px; height: 380px; animation-duration: 35s; } 
+
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .planet-info-panel {
+            flex: 1;
+            min-width: 300px;
+            background: var(--panel-color);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--accent-cyan);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .disclaimer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #ffaa00;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+
+        /* =========================================
+           GRID CARDS
+           ========================================= */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--panel-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            border-color: var(--accent-purple);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+        }
+
+        .card h3 { margin-bottom: 0.5rem; color: white; }
+        .card-meta { font-size: 0.9rem; color: var(--accent-cyan); margin-bottom: 1rem; display: block; }
+        .card p { color: var(--text-dim); font-size: 0.95rem; line-height: 1.5; }
+        .hero-role { color: var(--accent-purple); font-weight: bold; font-size: 0.9rem; margin-bottom: 0.5rem; display: block; }
+
+        /* =========================================
+           RESPONSIVE DESIGN
+           ========================================= */
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 1rem; border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+            .nav-links { flex-direction: row; overflow-x: auto; padding-bottom: 5px; }
+            .nav-btn { white-space: nowrap; padding: 0.5rem 1rem; font-size: 0.9rem; }
+            .main-content { margin-left: 0; padding: 1.5rem; }
+            .solar-system-layout { flex-direction: column; }
+            .orbit-container { height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <nav class="sidebar">
+        <div class="logo">Cosmos Explore</div>
+        <ul class="nav-links">
+            <li><button class="nav-btn active" onclick="switchSection('planets', this)">Exoplanets</button></li>
+            <li><button class="nav-btn" onclick="switchSection('galaxies', this)">Galaxies</button></li>
+            <li><button class="nav-btn" onclick="switchSection('satellites', this)">Satellites & Missions</button></li>
+            <li><button class="nav-btn" onclick="switchSection('heroes', this)">Indian Space Heroes</button></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+
+        <section id="planets" class="active-section">
+            <div class="section-header">
+                <h1>Strange New Worlds</h1>
+                <p>Explore exoplanets discovered by missions like Kepler and TESS. <strong>Hover over the orbit to pause and click a planet!</strong></p>
+            </div>
+
+            <div class="solar-system-layout">
+                <div class="orbit-container">
+                    <div class="star"></div> 
+                    
+                    <div class="orbit orbit-1">
+                        <div class="planet-node" style="background-color: #ff6b6b;" onclick="showPlanetInfo(0)"></div>
+                    </div>
+
+                    <div class="orbit orbit-2">
+                        <div class="planet-node" style="background-color: #4ecdc4;" onclick="showPlanetInfo(1)"></div>
+                    </div>
+
+                    <div class="orbit orbit-3">
+                        <div class="planet-node" style="background-color: #1a535c;" onclick="showPlanetInfo(2)"></div>
+                    </div>
+
+                    <div class="orbit orbit-4">
+                        <div class="planet-node" style="background-color: #ffe66d;" onclick="showPlanetInfo(3)"></div>
+                    </div>
+                </div>
+
+                <div class="planet-info-panel">
+                    <span class="info-tag" id="p-type">Select a Planet</span>
+                    <h2 id="p-name" style="font-size: 2rem; margin-bottom: 0.5rem; color: white;">Welcome Explorer</h2>
+                    <p style="color: var(--accent-cyan); margin-bottom: 1rem;" id="p-dist">Click on a colored planet to begin.</p>
+                    <p id="p-desc" style="line-height: 1.6; color: var(--text-dim);">
+                        The universe is filled with billions of planets. Some are gas giants, others are rocky worlds like Earth. 
+                        Use the interactive view to see details about specific discoveries made by NASA and other agencies.
+                    </p>
+                    <div class="disclaimer">
+                        * Note: Atmospheric composition and surface details are scientifically inferred from spectral data.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="galaxies">
+            <div class="section-header">
+                <h1>Cosmic Cities</h1>
+                <p>Galaxies are massive collections of gas, dust, and billions of stars.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Andromeda Galaxy (M31)</h3>
+                    <span class="card-meta">Spiral Galaxy • 2.537 million light-years away</span>
+                    <p>Our Milky Way's largest neighbor. It is on a collision course with us and will merge with the Milky Way in about 4.5 billion years.</p>
+                </div>
+                <div class="card">
+                    <h3>Sombrero Galaxy (M104)</h3>
+                    <span class="card-meta">Unbarred Spiral • 29 million light-years away</span>
+                    <p>Famous for its bright nucleus and a large central bulge that looks like a hat. It has a supermassive black hole at its center.</p>
+                </div>
+                <div class="card">
+                    <h3>Whirlpool Galaxy (M51)</h3>
+                    <span class="card-meta">Spiral Galaxy • 23 million light-years away</span>
+                    <p>A classic spiral galaxy that is actually interacting with a smaller dwarf galaxy. It’s a favorite target for amateur astronomers.</p>
+                </div>
+                <div class="card">
+                    <h3>Triangulum Galaxy (M33)</h3>
+                    <span class="card-meta">Spiral Galaxy • 2.73 million light-years away</span>
+                    <p>The third-largest member of the Local Group (after Andromeda and the Milky Way).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="satellites">
+            <div class="section-header">
+                <h1>Eyes in the Sky</h1>
+                <p>Highlighting major missions from ISRO (India) and global agencies.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Aryabhata</h3>
+                    <span class="card-meta">ISRO • Launched 1975</span>
+                    <p>India's very first satellite, named after the famous astronomer. It marked the beginning of India's journey into space exploration.</p>
+                </div>
+                <div class="card">
+                    <h3>Chandrayaan-3</h3>
+                    <span class="card-meta">ISRO • Lunar Mission • 2023</span>
+                    <p>A historic success! It made India the first nation to land near the Lunar South Pole, searching for water ice and studying the moon's surface.</p>
+                </div>
+                <div class="card">
+                    <h3>Mangalyaan (MOM)</h3>
+                    <span class="card-meta">ISRO • Mars Orbiter • 2013</span>
+                    <p>India became the first nation to reach Mars orbit on its first attempt, and at a budget lower than the cost of the movie 'Gravity'.</p>
+                </div>
+                <div class="card">
+                    <h3>Aditya-L1</h3>
+                    <span class="card-meta">ISRO • Solar Mission • 2023</span>
+                    <p>India's first space-based observatory to study the Sun. It orbits at Lagrange Point 1 to observe solar coronas.</p>
+                </div>
+                <div class="card">
+                    <h3>James Webb Telescope</h3>
+                    <span class="card-meta">NASA/ESA/CSA • 2021</span>
+                    <p>The most powerful space telescope ever built. It uses infrared light to see the very first galaxies formed after the Big Bang.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="heroes">
+            <div class="section-header">
+                <h1>Indian Space Heroes</h1>
+                <p>The visionaries who put India on the cosmic map.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Vikram Sarabhai</h3>
+                    <span class="hero-role">Father of the Indian Space Program</span>
+                    <p>A physicist and astronomer who initiated space research in India. He helped set up ISRO and believed space tech should improve common lives.</p>
+                </div>
+                <div class="card">
+                    <h3>Satish Dhawan</h3>
+                    <span class="hero-role">Chairman of ISRO (1972-1984)</span>
+                    <p>He led the development of operational launch vehicles like SLV-3. Known for taking responsibility for failures and giving credit for success.</p>
+                </div>
+                <div class="card">
+                    <h3>A. P. J. Abdul Kalam</h3>
+                    <span class="hero-role">Rocket Scientist & Former President</span>
+                    <p>Known as the "Missile Man of India," he played a pivotal role in the development of India's ballistic missile and launch vehicle technology.</p>
+                </div>
+                <div class="card">
+                    <h3>Kalpana Chawla</h3>
+                    <span class="hero-role">First Woman of Indian Origin in Space</span>
+                    <p>An American astronaut and engineer who flew on Space Shuttle Columbia. She remains an inspiration for millions of girls worldwide.</p>
+                </div>
+                <div class="card">
+                    <h3>Ritu Karidhal</h3>
+                    <span class="hero-role">Rocket Woman of India</span>
+                    <p>A senior scientist at ISRO, she was the Deputy Operations Director for Mangalyaan, playing a key role in navigating the spacecraft to Mars.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    const planetData = [
+        {
+            name: "TRAPPIST-1e",
+            type: "Earth-sized Exoplanet",
+            discovery: "Discovered by Spitzer (2017)",
+            distance: "~40 light-years",
+            desc: "This planet is one of seven Earth-sized worlds orbiting a cool dwarf star. It is in the 'habitable zone,' meaning liquid water could exist on its surface. It's rocky, like Earth!"
+        },
+        {
+            name: "Proxima Centauri b",
+            type: "Super-Earth",
+            discovery: "Discovered by ESO (2016)",
+            distance: "4.2 light-years",
+            desc: "The closest known exoplanet to our Solar System. It orbits within the habitable zone of Proxima Centauri, our nearest stellar neighbor. It might be tidally locked."
+        },
+        {
+            name: "Kepler-186f",
+            type: "Earth-Size Planet",
+            discovery: "Discovered by Kepler (2014)",
+            distance: "~580 light-years",
+            desc: "The first Earth-size planet found in the habitable zone of another star. It orbits a red dwarf star and receives about one-third of the energy that Earth gets from the Sun."
+        },
+        {
+            name: "Kepler-452b",
+            type: "Super-Earth",
+            discovery: "Discovered by Kepler (2015)",
+            distance: "~1,400 light-years",
+            desc: "Often called 'Earth's Cousin.' It orbits a star very similar to our Sun at a similar distance. It is 60% larger than Earth and has a good chance of being rocky."
+        }
+    ];
+
+    function switchSection(sectionId, btnElement) {
+        const sections = document.querySelectorAll('section');
+        sections.forEach(sec => sec.classList.remove('active-section'));
+
+        const buttons = document.querySelectorAll('.nav-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(sectionId).classList.add('active-section');
+        btnElement.classList.add('active');
+    }
+
+    function showPlanetInfo(index) {
+        const data = planetData[index];
+        const nameEl = document.getElementById('p-name');
+        const typeEl = document.getElementById('p-type');
+        const distEl = document.getElementById('p-dist');
+        const descEl = document.getElementById('p-desc');
+        const panel = document.querySelector('.planet-info-panel');
+        
+        panel.style.opacity = 0;
+
+        setTimeout(() => {
+            nameEl.innerText = data.name;
+            typeEl.innerText = data.type;
+            distEl.innerText = `${data.distance} | ${data.discovery}`;
+            descEl.innerText = data.desc;
+            panel.style.transition = "opacity 0.4s ease";
+            panel.style.opacity = 1;
+        }, 200);
+    }
+</script>
+
+</body>
+</html>
